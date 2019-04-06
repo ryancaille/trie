@@ -14,6 +14,16 @@ func TestCreate(t *testing.T) {
 	}
 }
 
+func TestInsertEmptyWord(t *testing.T) {
+	trie := NewTrie()
+
+	trie.Insert("")
+
+	if trie.Count() != 0 {
+		t.Error("trie should not insert empty word")
+	}
+}
+
 func TestInsertWord(t *testing.T) {
 	trie := NewTrie()
 
@@ -22,12 +32,7 @@ func TestInsertWord(t *testing.T) {
 		t.Error("trie should have one word")
 	}
 
-	rootChildren := trie.RootChildren()
-	if len(rootChildren) != 1 {
-		t.Error("trie should have one root child")
-	}
-
-	if rootChildren[0].Value() != 'f' {
-		t.Error("the first child should have a value of 'f'")
+	if !trie.Contains("foobar") {
+		t.Error("trie should contain foobar")
 	}
 }

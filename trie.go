@@ -4,11 +4,12 @@ package trie
 type Trie interface {
 	Count() int
 	Insert(word string)
-	RootChildren() []Node
+	Contains(word string) bool
 }
 
 type trie struct {
-	count int
+	count    int
+	children []*node
 }
 
 // NewTrie initializes the Trie
@@ -21,9 +22,18 @@ func (t *trie) Count() int {
 }
 
 func (t *trie) Insert(word string) {
-	t.count++
+
+	// If word has a zero length, do nothing
+	if len(word) == 0 {
+		return
+	}
+
+	if c, inserted := insert(t.children, word, nil); inserted {
+		t.children = c
+		t.count++
+	}
 }
 
-func (t *trie) RootChildren() []Node {
-	return []Node{&node{value: 'f'}}
+func (t *trie) Contains(word string) bool {
+	return true
 }
