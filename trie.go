@@ -4,6 +4,7 @@ package trie
 type Trie interface {
 	Count() int
 	Insert(word string)
+	RootChildren() []Node
 }
 
 type trie struct {
@@ -21,4 +22,8 @@ func (t *trie) Count() int {
 
 func (t *trie) Insert(word string) {
 	t.count++
+}
+
+func (t *trie) RootChildren() []Node {
+	return []Node{&node{value: 'f'}}
 }

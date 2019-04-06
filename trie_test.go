@@ -21,4 +21,13 @@ func TestInsertWord(t *testing.T) {
 	if trie.Count() != 1 {
 		t.Error("trie should have one word")
 	}
+
+	rootChildren := trie.RootChildren()
+	if len(rootChildren) != 1 {
+		t.Error("trie should have one root child")
+	}
+
+	if rootChildren[0].Value() != 'f' {
+		t.Error("the first child should have a value of 'f'")
+	}
 }
