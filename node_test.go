@@ -21,9 +21,9 @@ func TestNewNode(t *testing.T) {
 	}
 
 	expectations := []nodeExpectation{
-		nodeExpectation{value: 'f', children: []rune{'u'}, nextChild: 'u'},
-		nodeExpectation{value: 'u', children: []rune{'n'}, nextChild: 'n', parent: 'f'},
-		nodeExpectation{value: 'n', parent: 'u', endOfWord: true},
+		{value: 'f', children: []rune{'u'}, nextChild: 'u'},
+		{value: 'u', children: []rune{'n'}, nextChild: 'n', parent: 'f'},
+		{value: 'n', parent: 'u', endOfWord: true},
 	}
 
 	verifyExpectations(t, node, expectations, 0, "f")
