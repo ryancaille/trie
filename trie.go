@@ -1,6 +1,8 @@
 package trie
 
-// Trie is an implementation of a prefix tree used for storing and searching strings
+import "strings"
+
+// Trie provides methods for storing and searching strings
 type Trie interface {
 	Count() int
 	Insert(word string)
@@ -27,6 +29,8 @@ func (t *trie) Insert(word string) {
 	if len(word) == 0 {
 		return
 	}
+
+	word = strings.ToLower(word)
 
 	if c, inserted := insert(t.children, word, nil); inserted {
 		t.children = c
