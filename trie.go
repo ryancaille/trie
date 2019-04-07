@@ -30,14 +30,20 @@ func (t *trie) Insert(word string) {
 		return
 	}
 
-	word = strings.ToLower(word)
-
-	if c, inserted := insert(t.children, word, nil); inserted {
+	if c, inserted := insert(t.children, splitWord(word), nil); inserted {
 		t.children = c
 		t.count++
 	}
 }
 
 func (t *trie) Contains(word string) bool {
-	return true
+	if len(word) == 0 {
+		return false
+	}
+
+	return contains(t.children, splitWord(word))
+}
+
+func splitWord(word string) []rune {
+	return []rune(strings.ToLower(word))
 }

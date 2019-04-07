@@ -1,5 +1,7 @@
 package trie
 
+import "sort"
+
 type node struct {
 	value     rune
 	parent    *node
@@ -8,7 +10,7 @@ type node struct {
 }
 
 // NewNode initializes a node with the value
-func newNode(r rune, suffix string, parent *node) (*node, bool) {
+func newNode(r rune, suffix []rune, parent *node) (*node, bool) {
 
 	var inserted bool
 
@@ -27,10 +29,10 @@ func newNode(r rune, suffix string, parent *node) (*node, bool) {
 	return n, inserted
 }
 
-func insert(nodes []*node, word string, parent *node) ([]*node, bool) {
+func insert(nodes []*node, word []rune, parent *node) ([]*node, bool) {
 	var inserted bool
 
-	prefix := rune(word[0])
+	prefix := word[0]
 	suffix := word[1:]
 
 	if len(nodes) == 0 {
@@ -40,4 +42,26 @@ func insert(nodes []*node, word string, parent *node) ([]*node, bool) {
 	}
 
 	return nodes, inserted
+}
+
+func contains(nodes []*node, word []rune) bool {
+
+	r := word[0]
+	endOfWord := len(word) == 1
+
+	index := sort.Search(len(nodes), func(i int) bool { return nodes[i].value >= r })
+	if index >= 0 && index < len(nodes) && nodes[index].value == r {
+
+		if endOfWord && nodes[index].endOfWord {
+			return true
+		}
+
+		if endOfWord && !nodes[index].endOfWord {
+			return false
+		}
+
+		return contains(nodes[index].children, word[1:])
+	}
+
+	return false
 }

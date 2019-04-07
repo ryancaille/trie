@@ -8,14 +8,13 @@ import (
 type nodeExpectation struct {
 	value     rune
 	children  []rune
-	hasParent bool
 	nextChild rune
 	parent    rune
 	endOfWord bool
 }
 
 func TestNewNode(t *testing.T) {
-	node, inserted := newNode('f', "un", nil)
+	node, inserted := newNode('f', []rune{'u', 'n'}, nil)
 
 	if !inserted {
 		t.Error("inserted should be true")
@@ -23,11 +22,11 @@ func TestNewNode(t *testing.T) {
 
 	expectations := []nodeExpectation{
 		nodeExpectation{value: 'f', children: []rune{'u'}, nextChild: 'u'},
-		nodeExpectation{value: 'u', children: []rune{'n'}, nextChild: 'n', hasParent: true, parent: 'f'},
-		nodeExpectation{value: 'n', hasParent: true, parent: 'u', endOfWord: true},
+		nodeExpectation{value: 'u', children: []rune{'n'}, nextChild: 'n', parent: 'f'},
+		nodeExpectation{value: 'n', parent: 'u', endOfWord: true},
 	}
 
-	verifyExpectations(t, node, expectations, 0, "")
+	verifyExpectations(t, node, expectations, 0, "f")
 }
 
 func verifyExpectations(t *testing.T, node *node, expectations []nodeExpectation, index int, prefix string) {
@@ -41,7 +40,7 @@ func verifyExpectations(t *testing.T, node *node, expectations []nodeExpectation
 		t.Errorf("[%v] value must be '%c'; found %c", prefix, expect.value, value)
 	}
 
-	if expect.hasParent {
+	if expect.parent != 0 {
 		if node.parent.value != expect.parent {
 			t.Errorf("[%v] node should have parent '%c', found '%c'", prefix, expect.parent, node.parent.value)
 		}

@@ -24,6 +24,22 @@ func TestInsertEmptyWord(t *testing.T) {
 	}
 }
 
+func TestShouldNotContainEmptyWord(t *testing.T) {
+	trie := NewTrie()
+
+	if trie.Contains("") {
+		t.Error("trie should not contain empty word")
+	}
+}
+
+func TestShouldNotContainWordWhenEmpty(t *testing.T) {
+	trie := NewTrie()
+
+	if trie.Contains("whatever") {
+		t.Error("trie should not contain \"whatever\"")
+	}
+}
+
 func TestInsertWord(t *testing.T) {
 	trie := NewTrie()
 
@@ -34,5 +50,9 @@ func TestInsertWord(t *testing.T) {
 
 	if !trie.Contains("foobar") {
 		t.Error("trie should contain foobar")
+	}
+
+	if trie.Contains("foo") {
+		t.Error("trie should not contain foo")
 	}
 }
