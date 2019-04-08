@@ -56,3 +56,22 @@ func TestInsertWord(t *testing.T) {
 		t.Error("trie should not contain foo")
 	}
 }
+
+func TestInsertOverlappingWords(t *testing.T) {
+	trie := NewTrie()
+
+	trie.Insert("foobar")
+	trie.Insert("foo")
+
+	if trie.Count() != 2 {
+		t.Error("trie should have two words")
+	}
+
+	if !trie.Contains("foobar") {
+		t.Error("trie should contain foobar")
+	}
+
+	if !trie.Contains("foo") {
+		t.Error("trie should contain foo")
+	}
+}

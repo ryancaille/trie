@@ -14,19 +14,52 @@ type nodeExpectation struct {
 }
 
 func TestSingleWordShouldBeInserted(t *testing.T) {
-	node, inserted := newNode('f', []rune{'u', 'n'}, nil)
 
-	if !inserted {
-		t.Error("inserted should be true")
-	}
+	root := make([]*node, 0)
+	root = insertWordAndVerify(t, root, "fun", 1)
 
+	actual := root[0]
 	expectations := []nodeExpectation{
 		{value: 'f', children: []rune{'u'}, nextChild: 'u'},
 		{value: 'u', children: []rune{'n'}, nextChild: 'n', parent: 'f'},
 		{value: 'n', parent: 'u', endOfWord: true},
 	}
 
-	verifyExpectations(t, node, expectations, 0, "f")
+	verifyExpectations(t, actual, expectations, 0, "f")
+}
+
+func TestOverlappingWordsShouldBeInserted(t *testing.T) {
+
+	root := make([]*node, 0)
+	root = insertWordAndVerify(t, root, "fun", 1)
+	root = insertWordAndVerify(t, root, "funny", 1)
+
+	actual := root[0]
+	expectations := []nodeExpectation{
+		{value: 'f', children: []rune{'u'}, nextChild: 'u'},
+		{value: 'u', children: []rune{'n'}, nextChild: 'n', parent: 'f'},
+		{value: 'n', children: []rune{'n'}, nextChild: 'n', parent: 'u', endOfWord: true},
+		{value: 'n', children: []rune{'y'}, nextChild: 'y', parent: 'n'},
+		{value: 'y', parent: 'n', endOfWord: true},
+	}
+
+	verifyExpectations(t, actual, expectations, 0, "f")
+}
+
+func insertWordAndVerify(t *testing.T, r []*node, word string, expectedLen int) []*node {
+	var inserted bool
+
+	r, inserted = insert(r, []rune(word), nil)
+
+	if !inserted {
+		t.Error("inserted should be true")
+	}
+
+	if len(r) != expectedLen {
+		t.Errorf("root nodes should contain %v; found %v", expectedLen, len(r))
+	}
+
+	return r
 }
 
 func verifyExpectations(t *testing.T, node *node, expectations []nodeExpectation, index int, prefix string) {
