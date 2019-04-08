@@ -13,7 +13,7 @@ type nodeExpectation struct {
 	endOfWord bool
 }
 
-func TestNewNode(t *testing.T) {
+func TestSingleWordShouldBeInserted(t *testing.T) {
 	node, inserted := newNode('f', []rune{'u', 'n'}, nil)
 
 	if !inserted {
@@ -36,41 +36,10 @@ func verifyExpectations(t *testing.T, node *node, expectations []nodeExpectation
 
 	expect := expectations[index]
 
-	if value := node.value; value != expect.value {
-		t.Errorf("[%v] value must be '%c'; found %c", prefix, expect.value, value)
-	}
-
-	if expect.parent != 0 {
-		if node.parent.value != expect.parent {
-			t.Errorf("[%v] node should have parent '%c', found '%c'", prefix, expect.parent, node.parent.value)
-		}
-	} else if node.parent != nil {
-		t.Errorf("[%v] node should not have parent", prefix)
-	}
-
-	if expect.endOfWord && !node.endOfWord {
-		t.Errorf("[%v] node should be end of word", prefix)
-	}
-
-	if !expect.endOfWord && node.endOfWord {
-		t.Errorf("[%v] node should NOT be end of word", prefix)
-	}
-
-	if len(expect.children) != len(node.children) {
-		t.Errorf("[%v] node should have ", prefix)
-	}
-
-	for _, r := range expect.children {
-		if !nodeHasChild(node, r) {
-			t.Errorf("[%v] node should have a child '%c' and does not", prefix, r)
-		}
-	}
-
-	for _, c := range node.children {
-		if !isRuneExpected(expect.children, c.value) {
-			t.Errorf("[%v] node has a child '%c' but this child is not expected", prefix, c.value)
-		}
-	}
+	validateValue(t, expect, node, prefix)
+	validateParent(t, expect, node, prefix)
+	validateChildren(t, expect, node, prefix)
+	validateEndOfWord(t, expect, node, prefix)
 
 	if node.endOfWord {
 		fmt.Printf("[%v] Validated Word\n", prefix)
@@ -88,7 +57,54 @@ func verifyExpectations(t *testing.T, node *node, expectations []nodeExpectation
 		}
 
 	}
+}
 
+func validateValue(t *testing.T, e nodeExpectation, n *node, prefix string) {
+
+	if value := n.value; value != e.value {
+		t.Errorf("[%v] value must be '%c'; found %c", prefix, e.value, value)
+	}
+}
+
+func validateParent(t *testing.T, e nodeExpectation, n *node, prefix string) {
+
+	if e.parent != 0 && n.parent.value != e.parent {
+		t.Errorf("[%v] node should have parent '%c', found '%c'", prefix, e.parent, n.parent.value)
+	}
+
+	if e.parent == 0 && n.parent != nil {
+		t.Errorf("[%v] node should not have parent", prefix)
+	}
+}
+
+func validateChildren(t *testing.T, e nodeExpectation, n *node, prefix string) {
+
+	if len(e.children) != len(n.children) {
+		t.Errorf("[%v] node should have ", prefix)
+	}
+
+	for _, r := range e.children {
+		if !nodeHasChild(n, r) {
+			t.Errorf("[%v] node should have a child '%c' and does not", prefix, r)
+		}
+	}
+
+	for _, c := range n.children {
+		if !isRuneExpected(e.children, c.value) {
+			t.Errorf("[%v] node has a child '%c' but this child is not expected", prefix, c.value)
+		}
+	}
+}
+
+func validateEndOfWord(t *testing.T, e nodeExpectation, n *node, prefix string) {
+
+	if e.endOfWord && !n.endOfWord {
+		t.Errorf("[%v] node should be end of word", prefix)
+	}
+
+	if !e.endOfWord && n.endOfWord {
+		t.Errorf("[%v] node should NOT be end of word", prefix)
+	}
 }
 
 func nodeHasChild(n *node, r rune) bool {
