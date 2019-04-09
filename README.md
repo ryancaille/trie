@@ -1,3 +1,3 @@
 # trie
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/texasryan82/trie)](https://goreportcard.com/report/github.com/texasryan82/trie)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ryancaille/trie)](https://goreportcard.com/report/github.com/ryancaille/trie)
