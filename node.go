@@ -35,20 +35,26 @@ func insert(nodes []*node, word []rune, parent *node) ([]*node, bool) {
 
 	prefix, suffix := word[0], word[1:]
 
-	_, node := search(nodes, prefix)
-	if node != nil {
+	index, n := search(nodes, prefix)
+	if n != nil {
 		if len(suffix) > 0 {
-			node.children, inserted = insert(node.children, suffix, node)
+			n.children, inserted = insert(n.children, suffix, n)
 		} else {
-			inserted, node.endOfWord = true, true
+			inserted, n.endOfWord = true, true
 		}
 	} else {
 
-		node, _ := newNode(prefix, suffix, parent)
+		nodeToInsert, _ := newNode(prefix, suffix, parent)
 
-		// TODO: We have to keep the children sorted or the Binary search won't work!!
-		// use the index of the search method to insert the node
-		nodes = append(nodes, node)
+		if index == len(nodes) {
+			// If the new node should be on the end, just append it
+			nodes = append(nodes, nodeToInsert)
+		} else {
+			// Otherwise insert the node at the appropriate index
+			nodes = append(nodes, nil)
+			copy(nodes[index+1:], nodes[index:])
+			nodes[index] = nodeToInsert
+		}
 
 		inserted = true
 	}

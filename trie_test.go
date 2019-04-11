@@ -2,6 +2,20 @@ package trie
 
 import "testing"
 
+var (
+	wordsAlphabet = []string{
+		"alpha", "bravo", "charlie", "delta", "echo",
+		"foxtrot", "golf", "hotel", "india", "juliett", "kilo", "lima",
+		"mike", "november", "oscar", "papa", "quebec", "romeo", "sierra",
+		"tango", "uniform", "victor", "whiskey", "xray", "yankee", "zulu",
+	}
+	wordsReverseAlphabet = []string{
+		"zulu", "yankee", "xray", "whiskey", "victor", "uniform", "tango",
+		"sierra", "romeo", "quebec", "papa", "oscar", "november", "mike",
+		"lima", "kilo", "juliett", "india", "hotel", "golf", "foxtrot",
+		"echo", "delta", "charlie", "bravo", "alpha"}
+)
+
 func TestCreate(t *testing.T) {
 	trie := NewTrie()
 
@@ -73,5 +87,35 @@ func TestInsertOverlappingWords(t *testing.T) {
 
 	if !trie.Contains("foo") {
 		t.Error("trie should contain foo")
+	}
+}
+
+func TestWordsInsertedInOrder(t *testing.T) {
+	trie := NewTrie()
+
+	for _, w := range wordsAlphabet {
+		trie.Insert(w)
+		if !trie.Contains(w) {
+			t.Errorf("trie should contain %v", w)
+		}
+	}
+
+	if trie.Count() != 26 {
+		t.Error("trie should have 26 words")
+	}
+}
+
+func TestWordsInsertedOutOfOrder(t *testing.T) {
+	trie := NewTrie()
+
+	for _, w := range wordsReverseAlphabet {
+		trie.Insert(w)
+		if !trie.Contains(w) {
+			t.Errorf("trie should contain %v", w)
+		}
+	}
+
+	if trie.Count() != 26 {
+		t.Error("trie should have 26 words")
 	}
 }
