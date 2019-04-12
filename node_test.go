@@ -46,6 +46,78 @@ func TestOverlappingWordsShouldBeInserted(t *testing.T) {
 	verifyExpectations(t, actual, expectations, 0, "f")
 }
 
+func TestNodesWhenWordsAreInsertedOutOfOrder(t *testing.T) {
+
+	root := make([]*node, 0)
+	root = insertWordAndVerify(t, root, "gamma", 1)
+	root = insertWordAndVerify(t, root, "beta", 2)
+	root = insertWordAndVerify(t, root, "alpha", 3)
+
+	alpha := root[0]
+	beta := root[1]
+	gamma := root[2]
+
+	alphaExpectations := []nodeExpectation{
+		{value: 'a', children: []rune{'l'}, nextChild: 'l'},
+		{value: 'l', children: []rune{'p'}, nextChild: 'p', parent: 'a'},
+		{value: 'p', children: []rune{'h'}, nextChild: 'h', parent: 'l'},
+		{value: 'h', children: []rune{'a'}, nextChild: 'a', parent: 'p'},
+		{value: 'a', parent: 'h', endOfWord: true}}
+
+	betaExpectations := []nodeExpectation{
+		{value: 'b', children: []rune{'e'}, nextChild: 'e'},
+		{value: 'e', children: []rune{'t'}, nextChild: 't', parent: 'b'},
+		{value: 't', children: []rune{'a'}, nextChild: 'a', parent: 'e'},
+		{value: 'a', parent: 't', endOfWord: true}}
+
+	gammaExpectations := []nodeExpectation{
+		{value: 'g', children: []rune{'a'}, nextChild: 'a'},
+		{value: 'a', children: []rune{'m'}, nextChild: 'm', parent: 'g'},
+		{value: 'm', children: []rune{'m'}, nextChild: 'm', parent: 'a'},
+		{value: 'm', children: []rune{'a'}, nextChild: 'a', parent: 'm'},
+		{value: 'a', parent: 'm', endOfWord: true}}
+
+	verifyExpectations(t, alpha, alphaExpectations, 0, "a")
+	verifyExpectations(t, beta, betaExpectations, 0, "b")
+	verifyExpectations(t, gamma, gammaExpectations, 0, "g")
+}
+
+func TestNodesWhenInsertingForkedWords(t *testing.T) {
+
+	root := make([]*node, 0)
+	root = insertWordAndVerify(t, root, "crazy", 1)
+	root = insertWordAndVerify(t, root, "crayon", 1)
+	root = insertWordAndVerify(t, root, "cream", 1)
+
+	actual := root[0]
+
+	crazyExpectations := []nodeExpectation{
+		{value: 'c', children: []rune{'r'}, nextChild: 'r'},
+		{value: 'r', children: []rune{'a', 'e'}, nextChild: 'a', parent: 'c'},
+		{value: 'a', children: []rune{'y', 'z'}, nextChild: 'z', parent: 'r'},
+		{value: 'z', children: []rune{'y'}, nextChild: 'y', parent: 'a'},
+		{value: 'y', parent: 'z', endOfWord: true}}
+
+	crayonExpectations := []nodeExpectation{
+		{value: 'c', children: []rune{'r'}, nextChild: 'r'},
+		{value: 'r', children: []rune{'a', 'e'}, nextChild: 'a', parent: 'c'},
+		{value: 'a', children: []rune{'y', 'z'}, nextChild: 'y', parent: 'r'},
+		{value: 'y', children: []rune{'o'}, nextChild: 'o', parent: 'a'},
+		{value: 'o', children: []rune{'n'}, nextChild: 'n', parent: 'y'},
+		{value: 'n', parent: 'o', endOfWord: true}}
+
+	creamExpectations := []nodeExpectation{
+		{value: 'c', children: []rune{'r'}, nextChild: 'r'},
+		{value: 'r', children: []rune{'a', 'e'}, nextChild: 'e', parent: 'c'},
+		{value: 'e', children: []rune{'a'}, nextChild: 'a', parent: 'r'},
+		{value: 'a', children: []rune{'m'}, nextChild: 'm', parent: 'e'},
+		{value: 'm', parent: 'a', endOfWord: true}}
+
+	verifyExpectations(t, actual, crazyExpectations, 0, "c")
+	verifyExpectations(t, actual, crayonExpectations, 0, "c")
+	verifyExpectations(t, actual, creamExpectations, 0, "c")
+}
+
 func insertWordAndVerify(t *testing.T, r []*node, word string, expectedLen int) []*node {
 	var inserted bool
 
@@ -116,15 +188,15 @@ func validateChildren(t *testing.T, e nodeExpectation, n *node, prefix string) {
 		t.Errorf("[%v] node should have ", prefix)
 	}
 
-	for _, r := range e.children {
-		if !nodeHasChild(n, r) {
-			t.Errorf("[%v] node should have a child '%c' and does not", prefix, r)
+	for i, r := range e.children {
+		if n.children[i].value != r {
+			t.Errorf("[%v] node should have a child '%c' at index %v and does not", prefix, r, i)
 		}
 	}
 
-	for _, c := range n.children {
-		if !isRuneExpected(e.children, c.value) {
-			t.Errorf("[%v] node has a child '%c' but this child is not expected", prefix, c.value)
+	for i, c := range n.children {
+		if e.children[i] != c.value {
+			t.Errorf("[%v] node has a child '%c' at index %v but this child is not expected", prefix, c.value, i)
 		}
 	}
 }
@@ -138,26 +210,6 @@ func validateEndOfWord(t *testing.T, e nodeExpectation, n *node, prefix string) 
 	if !e.endOfWord && n.endOfWord {
 		t.Errorf("[%v] node should NOT be end of word", prefix)
 	}
-}
-
-func nodeHasChild(n *node, r rune) bool {
-	for _, c := range n.children {
-		if c.value == r {
-			return true
-		}
-	}
-
-	return false
-}
-
-func isRuneExpected(expected []rune, r rune) bool {
-	for _, e := range expected {
-		if e == r {
-			return true
-		}
-	}
-
-	return false
 }
 
 func getNextNode(children []*node, r rune) *node {
