@@ -123,6 +123,35 @@ func TestNodesAreRemovedWhenWordIsRemoved(t *testing.T) {
 	root = removeWordAndVerify(t, root, "remove", 0)
 }
 
+func TestNodesAreCorrectAfterRemovingOverlappingWord(t *testing.T) {
+
+	root := make([]*node, 0)
+	root = insertWordAndVerify(t, root, "ab", 1)
+	root = insertWordAndVerify(t, root, "abc", 1)
+	root = removeWordAndVerify(t, root, "abc", 1)
+
+	expectations := []nodeExpectation{
+		{value: 'a', children: []rune{'b'}, nextChild: 'b'},
+		{value: 'b', parent: 'a', endOfWord: true}}
+
+	verifyExpectations(t, root[0], expectations, 0, "a")
+}
+
+func TestNodesAreCorrectAfterRemovingUnderlappingWord(t *testing.T) {
+
+	root := make([]*node, 0)
+	root = insertWordAndVerify(t, root, "ab", 1)
+	root = insertWordAndVerify(t, root, "abc", 1)
+	root = removeWordAndVerify(t, root, "ab", 1)
+
+	expectations := []nodeExpectation{
+		{value: 'a', children: []rune{'b'}, nextChild: 'b'},
+		{value: 'b', children: []rune{'c'}, nextChild: 'c', parent: 'a'},
+		{value: 'c', parent: 'b', endOfWord: true}}
+
+	verifyExpectations(t, root[0], expectations, 0, "a")
+}
+
 func insertWordAndVerify(t *testing.T, root []*node, word string, expectedLen int) []*node {
 	var inserted bool
 
@@ -145,14 +174,14 @@ func removeWordAndVerify(t *testing.T, root []*node, word string, expectedLen in
 	root, removed = remove(root, []rune(word))
 
 	if !removed {
-		t.Errorf("%v should have been removed and was not", word)
+		t.Fatalf("%v should have been removed and was not", word)
 	}
 
 	if len(root) != expectedLen {
-		t.Errorf("root nodes should contain %v; found %v", expectedLen, len(root))
+		t.Fatalf("root nodes should contain %v; found %v", expectedLen, len(root))
 	}
 
-	return nil
+	return root
 }
 
 func verifyExpectations(t *testing.T, node *node, expectations []nodeExpectation, index int, prefix string) {

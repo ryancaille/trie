@@ -97,56 +97,56 @@ func search(nodes []*node, r rune) (int, *node) {
 
 func remove(rootChildren []*node, word []rune) ([]*node, bool) {
 
-	if found, n := contains(rootChildren, word); found {
+	found, n := contains(rootChildren, word)
+
+	if found {
 
 		n.endOfWord = false
 
-		if c := cleanup(n, n.parent); c != nil {
+		c := cleanup(n, n.parent)
 
+		if c != nil {
 			// delete the child from the parent's children
-			if r, deleted := deleteChild(rootChildren, c); deleted {
-				return r, true
-			}
+			return deleteChild(rootChildren, c), found
 		}
 	}
 
-	return rootChildren, false
+	return rootChildren, found
 }
 
 // cleanup remove a node from the parent if that node has no children
 func cleanup(n *node, p *node) *node {
-
-	// if n has children, don't do anything else
-	if len(n.children) > 0 {
-		return nil
-	}
 
 	// when p is nil, it means n is a root child and we need to remove it
 	if p == nil {
 		return n
 	}
 
-	// delete the child from the parent's children
-	if c, deleted := deleteChild(p.children, n); deleted {
-		p.children = c
-
-		// recurse up the tree to determine if the parent needs to be deleted
-		return cleanup(p, p.parent)
+	// if n has children, cleanup is done
+	if len(n.children) > 0 {
+		return nil
 	}
 
-	return nil
+	// delete the child from the parent's children
+	p.children = deleteChild(p.children, n)
+
+	// if the parent is the end of another word, cleanup is done
+	if p.endOfWord {
+		return nil
+	}
+
+	// recurse up the tree to determine if the parent needs to be deleted
+	return cleanup(p, p.parent)
 }
 
-func deleteChild(children []*node, child *node) ([]*node, bool) {
+func deleteChild(children []*node, child *node) []*node {
 	if i, c := search(children, child.value); c == child {
 
 		// remove the child c at index i, and preserve order
 		copy(children[i:], children[i+1:])
 		children[len(children)-1] = nil
 		children = children[:len(children)-1]
-
-		return children, true
 	}
 
-	return children, false
+	return children
 }

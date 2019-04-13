@@ -153,3 +153,37 @@ func TestRemoveWord(t *testing.T) {
 	}
 
 }
+
+func TestRemoveOverlappingWord(t *testing.T) {
+
+	trie := NewTrie()
+
+	trie.Insert("foo")
+	trie.Insert("foobar")
+	trie.Remove("foobar")
+
+	if !trie.Contains("foo") {
+		t.Error("trie should contain foo")
+	}
+
+	if trie.Contains("foobar") {
+		t.Error("trie should not contain foobar")
+	}
+}
+
+func TestRemoveUnderlappingWord(t *testing.T) {
+
+	trie := NewTrie()
+
+	trie.Insert("foo")
+	trie.Insert("foobar")
+	trie.Remove("foo")
+
+	if !trie.Contains("foobar") {
+		t.Error("trie should contain foobar")
+	}
+
+	if trie.Contains("foo") {
+		t.Error("trie should not contain foo")
+	}
+}
