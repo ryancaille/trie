@@ -119,3 +119,37 @@ func TestWordsInsertedOutOfOrder(t *testing.T) {
 		t.Error("trie should have 26 words")
 	}
 }
+
+func TestRemoveEmptyWordShouldDoNothing(t *testing.T) {
+	trie := NewTrie()
+	trie.Remove("")
+}
+
+func TestRemoveNonExistentWordShouldDoNothing(t *testing.T) {
+	trie := NewTrie()
+	trie.Remove("nothing")
+}
+
+func TestRemoveWord(t *testing.T) {
+
+	trie := NewTrie()
+
+	trie.Insert("remove")
+	if trie.Count() != 1 {
+		t.Error("trie should have one word")
+	}
+
+	if !trie.Contains("remove") {
+		t.Error("trie should contain remove")
+	}
+
+	trie.Remove("remove")
+	if trie.Count() != 0 {
+		t.Error("trie should have zero words")
+	}
+
+	if trie.Contains("remove") {
+		t.Error("trie should not contain remove")
+	}
+
+}

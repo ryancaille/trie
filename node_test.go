@@ -117,20 +117,42 @@ func TestNodesWhenInsertingForkedWords(t *testing.T) {
 	verifyExpectations(t, actual, creamExpectations, 0, "c")
 }
 
-func insertWordAndVerify(t *testing.T, r []*node, word string, expectedLen int) []*node {
+func TestNodesAreRemovedWhenWordIsRemoved(t *testing.T) {
+	root := make([]*node, 0)
+	root = insertWordAndVerify(t, root, "remove", 1)
+	root = removeWordAndVerify(t, root, "remove", 0)
+}
+
+func insertWordAndVerify(t *testing.T, root []*node, word string, expectedLen int) []*node {
 	var inserted bool
 
-	r, inserted = insert(r, []rune(word), nil)
+	root, inserted = insert(root, []rune(word), nil)
 
 	if !inserted {
-		t.Error("inserted should be true")
+		t.Errorf("%v should have been inserted and was not", word)
 	}
 
-	if len(r) != expectedLen {
-		t.Errorf("root nodes should contain %v; found %v", expectedLen, len(r))
+	if len(root) != expectedLen {
+		t.Errorf("root nodes should contain %v; found %v", expectedLen, len(root))
 	}
 
-	return r
+	return root
+}
+
+func removeWordAndVerify(t *testing.T, root []*node, word string, expectedLen int) []*node {
+	var removed bool
+
+	root, removed = remove(root, []rune(word))
+
+	if !removed {
+		t.Errorf("%v should have been removed and was not", word)
+	}
+
+	if len(root) != expectedLen {
+		t.Errorf("root nodes should contain %v; found %v", expectedLen, len(root))
+	}
+
+	return nil
 }
 
 func verifyExpectations(t *testing.T, node *node, expectations []nodeExpectation, index int, prefix string) {

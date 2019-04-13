@@ -65,17 +65,20 @@ func insert(nodes []*node, word []rune, parent *node) ([]*node, bool) {
 
 // contains recursively searches children until it reaches the end of the word,
 // or it cannot find a node matching the rune
-func contains(nodes []*node, word []rune) bool {
+func contains(nodes []*node, word []rune) (bool, *node) {
 
 	// Search for the node that matches the rune
 	_, node := search(nodes, word[0])
 	if node == nil {
-		return false
+		return false, nil
 	}
 
 	// if this is the last rune in the word, we don't search anymore children
 	if endOfWord := len(word) == 1; endOfWord {
-		return node.endOfWord
+		if node.endOfWord {
+			return true, node
+		}
+		return false, nil
 	}
 
 	// recursively search the children
@@ -90,4 +93,60 @@ func search(nodes []*node, r rune) (int, *node) {
 	}
 
 	return index, nil
+}
+
+func remove(rootChildren []*node, word []rune) ([]*node, bool) {
+
+	if found, n := contains(rootChildren, word); found {
+
+		n.endOfWord = false
+
+		if c := cleanup(n, n.parent); c != nil {
+
+			// delete the child from the parent's children
+			if r, deleted := deleteChild(rootChildren, c); deleted {
+				return r, true
+			}
+		}
+	}
+
+	return rootChildren, false
+}
+
+// cleanup remove a node from the parent if that node has no children
+func cleanup(n *node, p *node) *node {
+
+	// if n has children, don't do anything else
+	if len(n.children) > 0 {
+		return nil
+	}
+
+	// when p is nil, it means n is a root child and we need to remove it
+	if p == nil {
+		return n
+	}
+
+	// delete the child from the parent's children
+	if c, deleted := deleteChild(p.children, n); deleted {
+		p.children = c
+
+		// recurse up the tree to determine if the parent needs to be deleted
+		return cleanup(p, p.parent)
+	}
+
+	return nil
+}
+
+func deleteChild(children []*node, child *node) ([]*node, bool) {
+	if i, c := search(children, child.value); c == child {
+
+		// remove the child c at index i, and preserve order
+		copy(children[i:], children[i+1:])
+		children[len(children)-1] = nil
+		children = children[:len(children)-1]
+
+		return children, true
+	}
+
+	return children, false
 }

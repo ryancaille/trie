@@ -40,7 +40,21 @@ func (t *Trie) Contains(word string) bool {
 		return false
 	}
 
-	return contains(t.children, splitWord(word))
+	found, _ := contains(t.children, splitWord(word))
+
+	return found
+}
+
+// Remove will remove a word if it exists, and do nothing if it does not exist
+func (t *Trie) Remove(word string) {
+	if len(word) == 0 {
+		return
+	}
+
+	if c, removed := remove(t.children, splitWord(word)); removed {
+		t.children = c
+		t.count--
+	}
 }
 
 func splitWord(word string) []rune {
