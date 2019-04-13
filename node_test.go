@@ -1,7 +1,6 @@
 package trie
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -145,12 +144,6 @@ func verifyExpectations(t *testing.T, node *node, expectations []nodeExpectation
 	validateParent(t, expect, node, prefix)
 	validateChildren(t, expect, node, prefix)
 	validateEndOfWord(t, expect, node, prefix)
-
-	if node.endOfWord {
-		fmt.Printf("[%v] Validated Word\n", prefix)
-	} else {
-		fmt.Printf("[%v] Validated Prefix\n", prefix)
-	}
 
 	if expect.nextChild != 0 {
 

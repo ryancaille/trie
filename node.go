@@ -9,8 +9,9 @@ type node struct {
 	endOfWord bool
 }
 
-// NewNode initializes a node with the value
-func newNode(r rune, suffix []rune, parent *node) (*node, bool) {
+// create initializes a node with the value,
+// and passes in the next suffix that will be inserted into its children
+func create(r rune, suffix []rune, parent *node) (*node, bool) {
 
 	var inserted bool
 
@@ -44,7 +45,7 @@ func insert(nodes []*node, word []rune, parent *node) ([]*node, bool) {
 		}
 	} else {
 
-		nodeToInsert, _ := newNode(prefix, suffix, parent)
+		nodeToInsert, _ := create(prefix, suffix, parent)
 
 		if index == len(nodes) {
 			// If the new node should be on the end, just append it

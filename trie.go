@@ -2,28 +2,26 @@ package trie
 
 import "strings"
 
-// Trie provides methods for storing and searching strings
-type Trie interface {
-	Count() int
-	Insert(word string)
-	Contains(word string) bool
-}
-
-type trie struct {
+// Trie is a data structure that is optimized for storing and searching strings,
+// as well as string matching based on a prefix
+type Trie struct {
 	count    int
 	children []*node
 }
 
 // NewTrie initializes the Trie
-func NewTrie() Trie {
-	return &trie{}
+func NewTrie() *Trie {
+	return &Trie{}
 }
 
-func (t *trie) Count() int {
+// Count returns the number of unique words currently stored in the Trie
+func (t *Trie) Count() int {
 	return t.count
 }
 
-func (t *trie) Insert(word string) {
+// Insert will insert a new word into the Trie.  If the word already exists it does not store a duplicate copy,
+// nor will it track how many times that word was inserted, only that it does exist in the Trie.
+func (t *Trie) Insert(word string) {
 
 	// If word has a zero length, do nothing
 	if len(word) == 0 {
@@ -36,7 +34,8 @@ func (t *trie) Insert(word string) {
 	}
 }
 
-func (t *trie) Contains(word string) bool {
+// Contains will check the Trie to see if a word is currently stored.
+func (t *Trie) Contains(word string) bool {
 	if len(word) == 0 {
 		return false
 	}
