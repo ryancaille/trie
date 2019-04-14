@@ -1,12 +1,16 @@
 package trie
 
-import "strings"
+import (
+	"strings"
+	"sync"
+)
 
 // Trie is a data structure that is optimized for storing and searching strings,
 // as well as string matching based on a prefix
 type Trie struct {
 	count    int
 	children []*node
+	lock     sync.RWMutex
 }
 
 // NewTrie initializes the Trie
@@ -16,7 +20,12 @@ func NewTrie() *Trie {
 
 // Count returns the number of unique words currently stored in the Trie
 func (t *Trie) Count() int {
-	return t.count
+
+	t.lock.RLock()
+	c := t.count
+	t.lock.RUnlock()
+
+	return c
 }
 
 // Insert will insert a new word into the Trie.  If the word already exists it does not store a duplicate copy,
@@ -28,10 +37,12 @@ func (t *Trie) Insert(word string) {
 		return
 	}
 
+	t.lock.Lock()
 	if c, inserted := insert(t.children, splitWord(word), nil); inserted {
 		t.children = c
 		t.count++
 	}
+	t.lock.Unlock()
 }
 
 // Contains will check the Trie to see if a word is currently stored.
@@ -40,7 +51,9 @@ func (t *Trie) Contains(word string) bool {
 		return false
 	}
 
+	t.lock.RLock()
 	found, _ := contains(t.children, splitWord(word))
+	t.lock.RUnlock()
 
 	return found
 }
@@ -51,10 +64,12 @@ func (t *Trie) Remove(word string) {
 		return
 	}
 
+	t.lock.Lock()
 	if c, removed := remove(t.children, splitWord(word)); removed {
 		t.children = c
 		t.count--
 	}
+	t.lock.Unlock()
 }
 
 func splitWord(word string) []rune {

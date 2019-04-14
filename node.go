@@ -40,6 +40,9 @@ func insert(nodes []*node, word []rune, parent *node) ([]*node, bool) {
 	if n != nil {
 		if len(suffix) > 0 {
 			n.children, inserted = insert(n.children, suffix, n)
+		} else if n.endOfWord {
+			// we just found the same word
+			inserted = false
 		} else {
 			inserted, n.endOfWord = true, true
 		}

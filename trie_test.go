@@ -1,6 +1,9 @@
 package trie
 
-import "testing"
+import (
+	"sync"
+	"testing"
+)
 
 var (
 	wordsAlphabet = []string{
@@ -68,6 +71,19 @@ func TestInsertWord(t *testing.T) {
 
 	if trie.Contains("foo") {
 		t.Error("trie should not contain foo")
+	}
+}
+
+func TestInsertTheSameWordTwice(t *testing.T) {
+	trie := NewTrie()
+	trie.Insert("foobar")
+	trie.Insert("foobar")
+	if trie.Count() != 1 {
+		t.Error("trie should have one word")
+	}
+
+	if !trie.Contains("foobar") {
+		t.Error("trie should contain foobar")
 	}
 }
 
@@ -185,5 +201,35 @@ func TestRemoveUnderlappingWord(t *testing.T) {
 
 	if trie.Contains("foo") {
 		t.Error("trie should not contain foo")
+	}
+}
+
+func TestConcurrentInserts(t *testing.T) {
+
+	var wg sync.WaitGroup
+
+	trie := NewTrie()
+	words := []string{"aabc", "abbb", "abca", "aabb", "aaca", "accb", "acba", "bbac", "babc", "bbbb"}
+
+	for i := 0; i < 100000; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for _, w := range words {
+				trie.Insert(w)
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	if trie.Count() != len(words) {
+		t.Errorf("Trie should contain %v words but found %v", len(words), trie.Count())
+	}
+
+	for _, w := range words {
+		if !trie.Contains(w) {
+			t.Errorf("Trie should contain %v and it does not", w)
+		}
 	}
 }
