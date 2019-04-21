@@ -120,7 +120,8 @@ func TestNodesWhenInsertingForkedWords(t *testing.T) {
 func TestNodesAreRemovedWhenWordIsRemoved(t *testing.T) {
 	root := make([]*node, 0)
 	root = insertWordAndVerify(t, root, "remove", 1)
-	root = removeWordAndVerify(t, root, "remove", 0)
+
+	removeWordAndVerify(t, root, "remove", 0)
 }
 
 func TestNodesAreCorrectAfterRemovingOverlappingWord(t *testing.T) {

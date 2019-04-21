@@ -81,7 +81,7 @@ func contains(nodes []*node, word []rune) (bool, *node) {
 		if node.endOfWord {
 			return true, node
 		}
-		return false, nil
+		return false, node
 	}
 
 	// recursively search the children
@@ -152,4 +152,47 @@ func deleteChild(children []*node, child *node) []*node {
 	}
 
 	return children
+}
+
+func like(rootChildren []*node, prefix []rune) []string {
+
+	var words []string
+
+	_, endOfPrefix := contains(rootChildren, prefix)
+	if endOfPrefix == nil {
+		return words
+	}
+
+	count := 5
+	index := count - 1
+	suffixes := make([]*string, count)
+	parent := ""
+	findSuffixes(endOfPrefix, suffixes, parent, &index)
+
+	// The words are in reverse alphabetical order since we are
+	// counting down from the requested count
+	for i := len(suffixes) - 1; i >= 0; i-- {
+		words = append(words, string(prefix)+*suffixes[i])
+	}
+
+	return words
+}
+
+func findSuffixes(n *node, suffixes []*string, parent string, index *int) {
+
+	for _, c := range n.children {
+
+		if *index < 0 {
+			return
+		}
+
+		current := parent + string(c.value)
+		suffixes[*index] = &current
+		if c.endOfWord {
+			*index--
+		}
+
+		findSuffixes(c, suffixes, current, index)
+	}
+
 }

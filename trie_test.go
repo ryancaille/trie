@@ -1,22 +1,17 @@
 package trie
 
 import (
+	"bufio"
+	"log"
+	"os"
 	"sync"
 	"testing"
 )
 
 var (
-	wordsAlphabet = []string{
-		"alpha", "bravo", "charlie", "delta", "echo",
-		"foxtrot", "golf", "hotel", "india", "juliett", "kilo", "lima",
-		"mike", "november", "oscar", "papa", "quebec", "romeo", "sierra",
-		"tango", "uniform", "victor", "whiskey", "xray", "yankee", "zulu",
-	}
-	wordsReverseAlphabet = []string{
-		"zulu", "yankee", "xray", "whiskey", "victor", "uniform", "tango",
-		"sierra", "romeo", "quebec", "papa", "oscar", "november", "mike",
-		"lima", "kilo", "juliett", "india", "hotel", "golf", "foxtrot",
-		"echo", "delta", "charlie", "bravo", "alpha"}
+	wordsAlphabet        = readWordFile("test/alphabetical")
+	wordsReverseAlphabet = readWordFile("test/reverseAlphabetical")
+	wordsLike            = readWordFile("test/likeWords")
 )
 
 func TestCreate(t *testing.T) {
@@ -232,4 +227,59 @@ func TestConcurrentInserts(t *testing.T) {
 			t.Errorf("Trie should contain %v and it does not", w)
 		}
 	}
+}
+
+func TestWordsLikeEmptyWord(t *testing.T) {
+
+	trie := NewTrie()
+	for _, w := range wordsLike {
+		trie.Insert(w)
+	}
+	verifyMatches(t, trie.Like(""))
+}
+
+func TestWordsNoMatches(t *testing.T) {
+
+	trie := NewTrie()
+	for _, w := range wordsLike {
+		trie.Insert(w)
+	}
+	verifyMatches(t, trie.Like("b"))
+}
+
+func TestWordsLikeWord(t *testing.T) {
+
+	trie := NewTrie()
+	for _, w := range wordsLike {
+		trie.Insert(w)
+	}
+
+	verifyMatches(t, trie.Like("a"), "aachen", "aaron", "aaronite", "abaciscus", "abaco")
+}
+
+func verifyMatches(t *testing.T, actual []string, expected ...string) {
+	if len(actual) != len(expected) {
+		t.Fatalf("There should be %v matches but found %v", len(actual), len(expected))
+	}
+}
+
+func readWordFile(file string) []string {
+	words := make([]string, 0)
+	f, err := os.Open(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		words = append(words, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	return words
 }

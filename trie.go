@@ -72,6 +72,20 @@ func (t *Trie) Remove(word string) {
 	t.lock.Unlock()
 }
 
+// Like will traverse the Trie and find the best 5 matches
+func (t *Trie) Like(prefix string) []string {
+
+	if len(prefix) == 0 {
+		return make([]string, 0)
+	}
+
+	t.lock.RLock()
+	words := like(t.children, splitWord(prefix))
+	t.lock.RUnlock()
+
+	return words
+}
+
 func splitWord(word string) []rune {
 	return []rune(strings.ToLower(word))
 }
