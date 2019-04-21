@@ -156,47 +156,31 @@ func deleteChild(children []*node, child *node) []*node {
 
 func like(rootChildren []*node, prefix []rune, count int) []string {
 
-	var words []string
+	words := make([]string, 0)
 
 	_, endOfPrefix := contains(rootChildren, prefix)
 	if endOfPrefix == nil {
 		return words
 	}
 
-	index := 0
-	suffixes := make([]*string, 0)
-	parent := ""
-	findSuffixes(endOfPrefix, &suffixes, parent, &index, count)
-
-	for i := 0; i < len(suffixes); i++ {
-		w := suffixes[i]
-		if w != nil {
-			words = append(words, string(prefix)+*suffixes[i])
-		}
-	}
+	findWords(endOfPrefix, string(prefix), &words, "", count)
 
 	return words
 }
 
-func findSuffixes(n *node, suffixes *[]*string, parent string, index *int, count int) {
+func findWords(n *node, prefix string, words *[]string, parent string, count int) {
 
 	for _, c := range n.children {
 
-		if count >= 0 && *index >= count {
+		if count >= 0 && len(*words) >= count {
 			return
 		}
 
-		if *index == len(*suffixes) {
-			*suffixes = append(*suffixes, nil)
-		}
-
 		current := parent + string(c.value)
-		(*suffixes)[*index] = &current
 		if c.endOfWord {
-			*index++
+			*words = append(*words, prefix+current)
 		}
 
-		findSuffixes(c, suffixes, current, index, count)
+		findWords(c, prefix, words, current, count)
 	}
-
 }
