@@ -154,7 +154,7 @@ func deleteChild(children []*node, child *node) []*node {
 	return children
 }
 
-func like(rootChildren []*node, prefix []rune) []string {
+func like(rootChildren []*node, prefix []rune, count int) []string {
 
 	var words []string
 
@@ -163,36 +163,40 @@ func like(rootChildren []*node, prefix []rune) []string {
 		return words
 	}
 
-	count := 5
-	index := count - 1
-	suffixes := make([]*string, count)
+	index := 0
+	suffixes := make([]*string, 0)
 	parent := ""
-	findSuffixes(endOfPrefix, suffixes, parent, &index)
+	findSuffixes(endOfPrefix, &suffixes, parent, &index, count)
 
-	// The words are in reverse alphabetical order since we are
-	// counting down from the requested count
-	for i := len(suffixes) - 1; i >= 0; i-- {
-		words = append(words, string(prefix)+*suffixes[i])
+	for i := 0; i < len(suffixes); i++ {
+		w := suffixes[i]
+		if w != nil {
+			words = append(words, string(prefix)+*suffixes[i])
+		}
 	}
 
 	return words
 }
 
-func findSuffixes(n *node, suffixes []*string, parent string, index *int) {
+func findSuffixes(n *node, suffixes *[]*string, parent string, index *int, count int) {
 
 	for _, c := range n.children {
 
-		if *index < 0 {
+		if count >= 0 && *index >= count {
 			return
 		}
 
-		current := parent + string(c.value)
-		suffixes[*index] = &current
-		if c.endOfWord {
-			*index--
+		if *index == len(*suffixes) {
+			*suffixes = append(*suffixes, nil)
 		}
 
-		findSuffixes(c, suffixes, current, index)
+		current := parent + string(c.value)
+		(*suffixes)[*index] = &current
+		if c.endOfWord {
+			*index++
+		}
+
+		findSuffixes(c, suffixes, current, index, count)
 	}
 
 }

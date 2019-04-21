@@ -235,7 +235,7 @@ func TestWordsLikeEmptyWord(t *testing.T) {
 	for _, w := range wordsLike {
 		trie.Insert(w)
 	}
-	verifyMatches(t, trie.Like(""))
+	verifyMatches(t, trie.Like("", 5))
 }
 
 func TestWordsNoMatches(t *testing.T) {
@@ -244,7 +244,7 @@ func TestWordsNoMatches(t *testing.T) {
 	for _, w := range wordsLike {
 		trie.Insert(w)
 	}
-	verifyMatches(t, trie.Like("b"))
+	verifyMatches(t, trie.Like("b", 5))
 }
 
 func TestWordsLikeWord(t *testing.T) {
@@ -254,12 +254,44 @@ func TestWordsLikeWord(t *testing.T) {
 		trie.Insert(w)
 	}
 
-	verifyMatches(t, trie.Like("a"), "aachen", "aaron", "aaronite", "abaciscus", "abaco")
+	verifyMatches(t, trie.Like("a", 5), "aachen", "aaron", "aaronite", "abaciscus", "abaco")
+}
+
+func TestWordsWithFewMatches(t *testing.T) {
+
+	trie := NewTrie()
+	for _, w := range wordsLike {
+		trie.Insert(w)
+	}
+
+	verifyMatches(t, trie.Like("aa", 5), "aachen", "aaron", "aaronite")
+}
+
+func TestLikeWordsAllMatches(t *testing.T) {
+
+	trie := NewTrie()
+	for _, w := range wordsLike {
+		trie.Insert(w)
+	}
+
+	verifyMatches(t, trie.Like("abd", -1),
+		"abdicator", "abdomen", "abdominal", "abdominocentesis", "abduce", "abductee", "abductor",
+	)
+}
+
+func TestLikeWordsZeroCount(t *testing.T) {
+
+	trie := NewTrie()
+	for _, w := range wordsLike {
+		trie.Insert(w)
+	}
+
+	verifyMatches(t, trie.Like("abd", 0))
 }
 
 func verifyMatches(t *testing.T, actual []string, expected ...string) {
 	if len(actual) != len(expected) {
-		t.Fatalf("There should be %v matches but found %v", len(actual), len(expected))
+		t.Fatalf("There should be %v matches but found %v", len(expected), len(actual))
 	}
 }
 

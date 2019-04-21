@@ -72,15 +72,15 @@ func (t *Trie) Remove(word string) {
 	t.lock.Unlock()
 }
 
-// Like will traverse the Trie and find the best 5 matches
-func (t *Trie) Like(prefix string) []string {
+// Like will traverse the Trie and find the best matches. up to the supplied count
+func (t *Trie) Like(prefix string, count int) []string {
 
 	if len(prefix) == 0 {
 		return make([]string, 0)
 	}
 
 	t.lock.RLock()
-	words := like(t.children, splitWord(prefix))
+	words := like(t.children, splitWord(prefix), count)
 	t.lock.RUnlock()
 
 	return words
