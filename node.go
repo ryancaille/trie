@@ -163,6 +163,10 @@ func like(rootChildren []*node, prefix []rune, count int) []string {
 		return words
 	}
 
+	if endOfPrefix.endOfWord {
+		words = append(words, string(prefix))
+	}
+
 	findWords(endOfPrefix, string(prefix), &words, "", count)
 
 	return words

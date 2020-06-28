@@ -279,6 +279,17 @@ func TestLikeWordsAllMatches(t *testing.T) {
 	)
 }
 
+func TestLikeWordsWherePrefixIsWord(t *testing.T) {
+
+	trie := NewTrie()
+	trie.Insert("foo")
+	trie.Insert("foobar")
+
+	verifyMatches(t, trie.Like("foo", -1),
+		"foo", "foobar",
+	)
+}
+
 func TestLikeWordsZeroCount(t *testing.T) {
 
 	trie := NewTrie()
